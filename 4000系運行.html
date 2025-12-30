@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>カットした電車画像のアニメーション</title>
+    <style>
+        /* 🎨 全体のリセットと背景 */
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e0f7fa;
+            overflow: hidden;
+        }
+
+        /* 🛤️ 線路（舞台）のスタイル */
+        .rail {
+            width: 100%;
+            height: 30vh; /* 画像が収まるように高さを設定 */
+            position: absolute;
+            bottom: 30vh;
+            overflow: hidden;
+            border-bottom: 5px solid #333; /* 線路の線 */
+        }
+        
+        /* 🚃 電車のスタイルとアニメーションの適用 */
+        .train {
+            /* カットした画像を背景として設定 */
+            background-image: url('https://r.res.wb.yandex.net/i/016460f7710927878/train_side_view.png'); /* カットした画像のURL */
+            background-size: contain; /* 画像全体が表示されるように調整 */
+            background-repeat: no-repeat; /* 画像を繰り返さない */
+            background-position: center bottom; /* 下中央に配置 */
+
+            height: 25vh; /* 画面の高さの1/4 */
+            /* カット後の画像の縦横比に合わせて幅を計算 (例: 高さ200pxに対して幅900pxの場合) */
+            /* (画像幅 / 画像高さ) を掛けてアスペクト比を保ちます */
+            width: calc(25vh * (900 / 200)); /* この計算は画像の実際の比率に合わせて調整してください */
+
+            position: absolute;
+            bottom: 2vh;     /* 線路との隙間をvhで調整 */
+            left: -30vw;     /* 電車の幅に応じて初期位置を調整 */
+            
+            /* アニメーションの定義 */
+            animation-name: accelerate-and-cruise;
+            animation-duration: 8s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite; 
+        }
+
+        /* 🚀 加速後等速アニメーションの動きの定義 */
+        /* ※前回の加速後等速設定をそのまま使用しています */
+        @keyframes accelerate-and-cruise {
+            0% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(10vw);
+            }
+            50% {
+                transform: translateX(35vw);
+            }
+            100% {
+                /* 電車の幅に応じて画面外に出るための余裕を調整 */
+                transform: translateX(calc(100vw + 30vw)); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="rail">
+        <div class="train"></div>
+    </div>
+</body>
+</html>

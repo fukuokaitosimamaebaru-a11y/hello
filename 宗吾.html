@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>レールに近い特急🚃アニメーション</title>
+    <style>
+        /* 🎨 全体のリセットと背景 */
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e0f7fa;
+            overflow: hidden;
+        }
+
+        /* 🛤️ 線路（舞台）のスタイル */
+        .rail {
+            width: 100%;
+            height: 20vh; /* 電車が15vhなので、余裕を持たせる */
+            position: absolute;
+            bottom: 30vh;
+            overflow: hidden;
+            border-bottom: 5px solid #333; /* 線路の線 */
+        }
+        
+        /* 🚃 電車のスタイルとアニメーションの適用 */
+        .train {
+            font-size: 15vh; /* 画面高さの15% */
+            position: absolute;
+            bottom: 1px;     /* ★bottomを1pxに設定し、線路の底(0)に極限まで近づける★ */
+            left: -30vh;     
+            
+            /* アニメーションの定義 */
+            animation-name: constant-speed-run; 
+            animation-duration: 3s;              /* 非常に高速な速度を維持 */
+            animation-timing-function: linear;   /* 一定速度 */
+            animation-iteration-count: infinite; 
+        }
+
+        /* 🚀 非常に高速な等速アニメーションの動きの定義 */
+        @keyframes constant-speed-run {
+            0% {
+                transform: translateX(0); 
+            }
+            100% {
+                transform: translateX(calc(100vw + 30vh)); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="rail">
+        <div class="train">🚃</div>
+    </div>
+</body>
+</html>
+

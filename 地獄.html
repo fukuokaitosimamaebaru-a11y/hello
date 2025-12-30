@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>切り替わる電光掲示板付き特急🚃アニメーション</title>
+    <style>
+        /* 🎨 全体のリセットと背景 */
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e0f7fa;
+            overflow: hidden;
+        }
+
+        /* --------------------------------- */
+        /* 画面固定の電光掲示板 */
+        /* --------------------------------- */
+        .fixed-display {
+            position: fixed; /* 画面に固定 */
+            top: 10px;       
+            left: 50%;       
+            transform: translateX(-50%); /* 中央寄せ */
+            padding: 0 10px;
+            background-color: #000; 
+            border: 2px solid #555;
+            z-index: 1000;   
+            white-space: nowrap;
+        }
+
+        .fixed-display-text {
+            font-size: 5vh; 
+            font-family: 'Courier New', monospace;
+            color: #FF0000; /* 赤色 */
+            font-weight: bold;
+            min-width: 200px; /* テキストが切り替わっても幅が安定するように最小幅を設定 */
+            text-align: center;
+            display: block;
+        }
+        /* --------------------------------- */
+        
+
+        /* 🛤️ 線路（舞台）のスタイル */
+        .rail {
+            width: 100%;
+            height: 20vh;
+            position: absolute;
+            bottom: 30vh;
+            overflow: hidden;
+            border-bottom: 5px solid #333; /* 線路の線 */
+        }
+        
+        /* 🚃 電車コンテナのスタイルとアニメーションの適用 */
+        .train-container {
+            position: absolute;
+            left: -30vh;
+            bottom: 0; 
+            
+            animation-name: constant-speed-run; 
+            animation-duration: 3s; /* 非常に高速な速度を維持 */
+            animation-timing-function: linear;
+            animation-iteration-count: infinite; 
+        }
+
+        /* 🚃 電車のスタイル */
+        .train {
+            font-size: 15vh;
+            position: relative;
+            bottom: 1px; /* レールと1pxの隙間 */
+            left: 0;     
+        }
+
+        /* 🚀 非常に高速な等速アニメーションの動きの定義 */
+        @keyframes constant-speed-run {
+            0% {
+                transform: translateX(0); 
+            }
+            100% {
+                transform: translateX(calc(100vw + 30vh)); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed-display">
+        <span id="display-text" class="fixed-display-text">降りれません</span>
+    </div>
+
+    <div class="rail">
+        <div class="train-container">
+            <div class="train">🚃</div>
+        </div>
+    </div>
+
+    <script>
+        const displayTextElement = document.getElementById('display-text');
+        const messages = ["降りれません", "次は地獄"];
+        let currentIndex = 0;
+
+        function updateDisplay() {
+            // 現在のインデックスのメッセージを表示
+            displayTextElement.textContent = messages[currentIndex];
+            
+            // インデックスを更新 (次は地獄の後に降りれませんに戻る)
+            currentIndex = (currentIndex + 1) % messages.length;
+        }
+
+        // ページロード時に一度実行し、その後2000ミリ秒（2秒）ごとに実行
+        setInterval(updateDisplay, 2000);
+    </script>
+</body>
+</html>

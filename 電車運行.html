@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>加速後等速の電車アニメーション</title>
+    <style>
+        /* 🎨 全体のリセットと背景 */
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e0f7fa;
+            overflow: hidden;
+        }
+
+        /* 🛤️ 線路（舞台）のスタイル */
+        .rail {
+            width: 100%;
+            height: 100px;
+            position: absolute;
+            bottom: 30vh;
+            overflow: hidden;
+        }
+        
+        /* 擬似要素で線路の線を作成 */
+        .rail::after {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 5px;
+            background-color: #333;
+            position: absolute;
+            bottom: 0;
+        }
+
+        /* 🚃 電車のスタイルとアニメーションの適用 */
+        .train {
+            font-size: 100px;
+            position: absolute;
+            bottom: 10px;
+            left: -150px;
+            
+            /* アニメーションの定義 */
+            animation-name: accelerate-and-cruise; /* 新しいアニメーション名 */
+            animation-duration: 8s;        /* 1往復の合計所要時間 */
+            animation-timing-function: linear; /* キーフレーム間の動きは線形に保つ */
+            animation-iteration-count: infinite; 
+        }
+
+        /* 🚀 加速後等速アニメーションの動きの定義 */
+        @keyframes accelerate-and-cruise {
+            /* 0%から25%まで: 加速区間 */
+            0% {
+                transform: translateX(0); /* 画面左外 */
+            }
+            25% {
+                transform: translateX(10vw); /* 最初の25%の時間で画面の10%移動（低速） */
+            }
+            
+            /* 25%から50%まで: さらに加速区間 */
+            50% {
+                transform: translateX(35vw); /* 次の25%の時間で画面の25%移動（中速） */
+            }
+
+            /* 50%から100%まで: 等速区間 */
+            /* 残りの50%の時間で、残りの距離（100% - 35% = 65% + 画面外）を移動。
+               この区間内は一定の速度（最後の加速速度）を維持します。 */
+            100% {
+                transform: translateX(calc(100vw + 150px)); /* 画面右外へ */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="rail">
+        <div class="train">🚃</div>
+    </div>
+</body>
+</html>

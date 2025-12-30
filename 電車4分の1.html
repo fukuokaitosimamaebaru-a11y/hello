@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>画面1/4サイズの電車アニメーション</title>
+    <style>
+        /* 🎨 全体のリセットと背景 */
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e0f7fa;
+            overflow: hidden;
+        }
+
+        /* 🛤️ 線路（舞台）のスタイル */
+        /* 電車が大きくなった分、線路の高さも大きく調整 */
+        .rail {
+            width: 100%;
+            height: 30vh; /* 画面の高さの30%を線路のコンテナに */
+            position: absolute;
+            bottom: 30vh;
+            overflow: hidden;
+        }
+        
+        /* 擬似要素で線路の線を作成 */
+        .rail::after {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 5px;
+            background-color: #333;
+            position: absolute;
+            bottom: 0;
+        }
+
+        /* 🚃 電車のスタイルとアニメーションの適用 */
+        .train {
+            font-size: 25vh; /* ★ここを25vh（画面高さの1/4）に大きく変更★ */
+            position: absolute;
+            bottom: 2vh;     /* 線路との隙間をvhで調整 */
+            left: -30vh;     /* 電車が大きくなった分、初期位置を左外に広く取る */
+            
+            /* アニメーションの定義 */
+            animation-name: accelerate-and-cruise;
+            animation-duration: 8s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite; 
+        }
+
+        /* 🚀 加速後等速アニメーションの動きの定義 */
+        /* ※前回の加速後等速設定をそのまま使用しています */
+        @keyframes accelerate-and-cruise {
+            0% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(10vw);
+            }
+            50% {
+                transform: translateX(35vw);
+            }
+            100% {
+                /* 電車が大きくなった分、画面外に出るための余裕を大きく取る */
+                transform: translateX(calc(100vw + 30vh)); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="rail">
+        <div class="train">🚃</div>
+    </div>
+</body>
+</html>

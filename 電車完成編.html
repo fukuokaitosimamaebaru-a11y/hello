@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>🚃が1秒10cm(約100px)進むアニメーション</title>
+    <style>
+        /* 🎨 全体のリセットと背景 */
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e0f7fa;
+            overflow: hidden;
+        }
+
+        /* 🛤️ 線路（舞台）のスタイル */
+        .rail {
+            width: 100%;
+            height: 30vh; /* 電車が収まるように高さを設定 */
+            position: absolute;
+            bottom: 30vh;
+            overflow: hidden;
+            border-bottom: 5px solid #333; /* 線路の線 */
+        }
+        
+        /* 🚃 電車のスタイルとアニメーションの適用 */
+        .train {
+            font-size: 25vh; /* 画面高さの1/4 */
+            position: absolute;
+            bottom: 2vh;     /* 線路との隙間をvhで調整 */
+            left: -30vh;     /* 電車の幅（約25vh）に応じて初期位置を左外に広く取る */
+            
+            /* アニメーションの定義 */
+            animation-name: constant-speed-run; /* 新しいアニメーション名 */
+            animation-duration: 20s;             /* 例：約2000pxの距離を20秒で進む = 1秒100px */
+            animation-timing-function: linear;   /* 一定速度 */
+            animation-iteration-count: infinite; 
+        }
+
+        /* 🚀 1秒100px相当の等速アニメーションの動きの定義 */
+        @keyframes constant-speed-run {
+            0% {
+                transform: translateX(0); /* 画面左外（電車の幅分マイナス） */
+            }
+            100% {
+                /* 画面左外から画面右外まで移動 */
+                /* 画面幅 (100vw) + 電車の幅 (約25vh) 程度の距離を移動 */
+                /* 電車が見えなくなってから再出現するまでの距離も考慮 */
+                transform: translateX(calc(100vw + 30vh)); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="rail">
+        <div class="train">🚃</div>
+    </div>
+</body>
+</html>

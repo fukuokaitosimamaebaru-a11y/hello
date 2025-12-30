@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スクロール案内表示</title>
+    <style>
+        /* --- CSS スタイル --- */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #222; /* 暗い背景 */
+            overflow: hidden; /* スクロールバー非表示 */
+        }
+        .display-container {
+            width: 80%; /* 表示領域の幅 */
+            height: 100px; /* 表示領域の高さ */
+            background-color: #000; /* 表示板の背景 */
+            border: 5px solid #444;
+            overflow: hidden; /* スクロールするテキストがはみ出さないようにクリップ */
+            white-space: nowrap; /* テキストの折り返しを禁止 */
+            box-sizing: border-box;
+            font-family: 'Meiryo', 'Hiragino Kaku Gothic ProN', sans-serif;
+            font-size: 3em;
+            line-height: 90px;
+        }
+        #scrollingText {
+            /* テキストの色を案内表示風に */
+            color: #ff0000; /* 赤色（地獄を強調） */
+            display: inline-block;
+            /* アニメーションはJSで制御するため、CSSアニメーションはここでは使用しない */
+        }
+    </style>
+</head>
+<body>
+    <div class="display-container">
+        <span id="scrollingText">地獄(s459)終点 この列車は、折り返しいたしません</span>
+    </div>
+
+    <script>
+        /* --- JavaScript 制御ロジック --- */
+        
+        const textElement = document.getElementById('scrollingText');
+        const container = textElement.parentElement;
+        
+        let position = container.offsetWidth; // 初期位置はコンテナの右端
+        let speed = 2; // スクロール速度 (ピクセル/フレーム)
+
+        /**
+         * スクロールを処理するメイン関数
+         */
+        function scrollText() {
+            // 1. テキストの位置を更新
+            position -= speed;
+            
+            // 2. テキスト要素に新しい位置を適用
+            textElement.style.transform = `translateX(${position}px)`;
+
+            // 3. テキスト全体が左端に完全に消えたかチェック
+            // position < -textElement.offsetWidth のとき、テキストがコンテナ外に出る
+            if (position < -textElement.offsetWidth) {
+                // テキストを右端に戻して、ループを継続
+                position = container.offsetWidth;
+            }
+
+            // 次のフレームで再描画を要求 (滑らかなアニメーションのため)
+            requestAnimationFrame(scrollText);
+        }
+
+        // ページ読み込み完了後、アニメーションを開始
+        scrollText();
+    </script>
+</body>
+</html>
