@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ボイスチェンジャー</title>
+<style>
+body {
+  font-family: sans-serif;
+  background:#111;
+  color:#fff;
+  text-align:center;
+}
+button {
+  font-size:18px;
+  margin:6px;
+  padding:10px 16px;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<h1>🎤 ボイスチェンジャー</h1>
+
+<button onclick="start()">▶ マイク開始</button>
+<button onclick="stop()">⏹ 停止</button>
+
+<h2>エフェクト</h2>
+<button onclick="setEffect('normal')">ノーマル</button>
+<button onclick="setEffect('robot')">ロボット</button>
+<button onclick="setEffect('low')">低い声</button>
+<button onclick="setEffect('high')">高い声</button>
+<button onclick="setEffect('echo')">エコー</button>
+
+<script>
+let audioCtx, source, stream;
+let gainNode, filterNode, delayNode, osc, oscGain;
+
+async function start() {
+  stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  audioCtx = new AudioContext();
+
+  source = audioCtx.createMediaStreamSource(stream);
+
+  gainNode = audioCtx.createGain();
+  filterNode = audioCtx.createBiquadFilter();
+  delayNode = audioCtx.createDelay();
+  osc = audioCtx.createOscillator();
+  oscGain = audioCtx.createGain();
+
+  // 初期設定
+  filterNode.type = "allpass";
+  delayNode.delayTime.value = 0;
+  osc.frequency.value = 30;
+  oscGain.gain.value = 0;
+
+  // ロボット用（リングモジュレーション）
+  source.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  osc.connect(oscGain);
+  oscGain.connect(gainNode.gain);
+  osc.start();
+
+  alert("マイクを開始しました");
+}
+
+function stop() {
+  stream.getTracks().forEach(t => t.stop());
+  audioCtx.close();
+  alert("マイクを停止しました");
+}
+
+function setEffect(type) {
+  gainNode.disconnect();
+  filterNode.disconnect();
+  delayNode.disconnect();
+
+  if (type === "normal") {
+    source.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscGain.gain.value = 0;
+  }
+
+  if (type === "robot") {
+    source.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscGain.gain.value = 0.8;
+  }
+
+  if (type === "low") {
+    filterNode.type = "lowshelf";
+    filterNode.frequency.value = 400;
+    filterNode.gain.value = 15;
+    source.connect(filterNode);
+    filterNode.connect(audioCtx.destination);
+    oscGain.gain.value = 0;
+  }
+
+  if (type === "high") {
+    filterNode.type = "highshelf";
+    filterNode.frequency.value = 1000;
+    filterNode.gain.value = 15;
+    source.connect(filterNode);
+    filterNode.connect(audioCtx.destination);
+    oscGain.gain.value = 0;
+  }
+
+  if (type === "echo") {
+    delayNode.delayTime.value = 0.25;
+    source.connect(delayNode);
+    delayNode.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscGain.gain.value = 0;
+  }
+}
+</script>
+
+</body>
+</html>
