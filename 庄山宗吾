@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ホール風マイクエフェクト</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    select, button, input {
+      font-size: 16px;
+      margin: 10px;
+      padding: 6px;
+    }
+    .box {
+      border: 1px solid #444;
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 420px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎤 ホール風ボイスエフェクト</h1>
+
+<div class="box">
+  <div>
+    マイク選択：<br>
+    <select id="micSelect"></select>
+  </div>
+
+  <div>
+    リバーブ量：<br>
+    <input type="range" id="reverb" min="0" max="1" step="0.01" value="0.5">
+  </div>
+
+  <button id="start">▶ 開始</button>
+  <button id="stop">⏹ 停止</button>
+</div>
+
+<script>
+let audioContext;
+let stream;
+let source;
+let convolver;
+let gainNode;
+
+// ホール風リバーブ生成
+function createReverbBuffer(ctx, duration = 3, decay = 2) {
+  const rate = ctx.sampleRate;
+  const length = rate * duration;
+  const impulse = ctx.createBuffer(2, length, rate);
+
+  for (let ch = 0; ch < 2; ch++) {
+    const data = impulse.getChannelData(ch);
+    for (let i = 0; i < length; i++) {
+      data[i] = (Math.random() * 2 - 1) *
+        Math.pow(1 - i / length, decay);
+    }
+  }
+  return impulse;
+}
+
+// マイク一覧取得
+async function loadMics() {
+  await navigator.mediaDevices.getUserMedia({ audio: true });
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  const mics = devices.filter(d => d.kind === "audioinput");
+
+  const select = document.getElementById("micSelect");
+  select.innerHTML = "";
+
+  mics.forEach(mic => {
+    const option = document.createElement("option");
+    option.value = mic.deviceId;
+    option.textContent = mic.label || "不明なマイク";
+    select.appendChild(option);
+  });
+}
+
+// 開始
+async function startAudio() {
+  const micId = document.getElementById("micSelect").value;
+  const reverbAmount = document.getElementById("reverb").value;
+
+  audioContext = new AudioContext();
+
+  stream = await navigator.mediaDevices.getUserMedia({
+    audio: { deviceId: micId ? { exact: micId } : undefined }
+  });
+
+  source = audioContext.createMediaStreamSource(stream);
+
+  convolver = audioContext.createConvolver();
+  convolver.buffer = createReverbBuffer(audioContext);
+
+  gainNode = audioContext.createGain();
+  gainNode.gain.value = reverbAmount;
+
+  source.connect(convolver);
+  convolver.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+}
+
+// 停止
+function stopAudio() {
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+  if (audioContext) {
+    audioContext.close();
+    audioContext = null;
+  }
+  alert("マイクを停止しました");
+}
+
+// UIイベント
+document.getElementById("start").onclick = startAudio;
+document.getElementById("stop").onclick = stopAudio;
+document.getElementById("reverb").oninput = e => {
+  if (gainNode) gainNode.gain.value = e.target.value;
+};
+
+loadMics();
+</script>
+
+</body>
+</html>
