@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>🍟 POTETO TRAIN</title>
+  <style>
+    body {
+      background-color: #E6B85C;
+      font-family: "DotGothic16", monospace;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .scroll-text {
+      position: absolute;
+      top: 15%;
+      white-space: nowrap;
+      font-size: 90px;
+      color: black;
+      animation: scroll 12s linear infinite;
+    }
+    .scroll-next {
+      position: absolute;
+      bottom: 15%;
+      white-space: nowrap;
+      font-size: 70px;
+      color: black;
+      animation: scroll 12s linear infinite;
+    }
+    @keyframes scroll {
+      0% { left: 100%; }
+      100% { left: -100%; }
+    }
+    .center-text {
+      font-size: 100px;
+      color: black;
+      font-weight: bold;
+      text-align: center;
+    }
+    .corner-label {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 40px;
+      font-weight: bold;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <div class="corner-label">デザイン ポテト🍟</div>
+  <div id="scrollText" class="scroll-text">(s1.m2)SOGOHOUSE HONSYA</div>
+  <div class="center-text">POTETO TRAIN</div>
+  <div id="scrollNext" class="scroll-next">次は、宗吾の家　本社</div>
+
+  <script>
+    const texts = ["(s1.m2)SOGOHOUSE HONSYA", "(m1.s2)MANATOHOUSE"];
+    const nextTexts = ["次は、宗吾の家　本社", "次は、MANATO HOUSE"];
+    let index = 0;
+    let nextIndex = 0;
+    const scrollText = document.getElementById("scrollText");
+    const scrollNext = document.getElementById("scrollNext");
+
+    setInterval(() => {
+      index = (index + 1) % texts.length;
+      scrollText.textContent = texts[index];
+      nextIndex = (nextIndex + 1) % nextTexts.length;
+      scrollNext.textContent = nextTexts[nextIndex];
+    }, 12000);
+  </script>
+</body>
+</html>

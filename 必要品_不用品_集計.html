@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>必要品・不用品 集計</title>
+<style>
+  body {
+    font-family: sans-serif;
+    padding: 20px;
+  }
+  button {
+    margin: 5px;
+    padding: 12px 24px;
+    font-size: 18px;
+  }
+  .need { background-color: #c8f7c5; }
+  .not  { background-color: #f7c5c5; }
+
+  #spinner {
+    font-size: 40px;
+    display: none;
+    animation: spin 1s linear infinite;
+  }
+
+  #done {
+    font-size: 40px;
+    display: none;
+  }
+
+  @keyframes spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+
+<h2>必要品・不用品 集計</h2>
+
+<p>
+  <button class="need" onclick="needClick()">必要</button>
+  <button class="not" onclick="notClick()">不要</button>
+</p>
+
+<p>
+  <button onclick="showTotal()">合計</button>
+  <button onclick="resetCount()">リセット</button>
+</p>
+
+<div id="spinner">🛑</div>
+<div id="done">✅ 完了！</div>
+
+<h3 id="result">結果：まだです</h3>
+
+<script>
+let needCount = 0;
+let notNeedCount = 0;
+
+function needClick() {
+  needCount++;
+}
+
+function notClick() {
+  notNeedCount++;
+}
+
+function speak(text) {
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.lang = "ja-JP";
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(speech);
+}
+
+function showTotal() {
+  const spinner = document.getElementById("spinner");
+  const done = document.getElementById("done");
+  const result = document.getElementById("result");
+
+  done.style.display = "none";
+  result.textContent = "計算中…";
+  spinner.style.display = "block";
+
+  setTimeout(() => {
+    spinner.style.display = "none";
+    done.style.display = "block";
+
+    const text = `必要 ${needCount} こ、不用品 ${notNeedCount} こです`;
+    result.textContent = text;
+    speak(text);
+  }, 1200);
+}
+
+function resetCount() {
+  needCount = 0;
+  notNeedCount = 0;
+  document.getElementById("spinner").style.display = "none";
+  document.getElementById("done").style.display = "none";
+  document.getElementById("result").textContent = "結果：リセットしました";
+  window.speechSynthesis.cancel();
+}
+</script>
+
+</body>
+</html>

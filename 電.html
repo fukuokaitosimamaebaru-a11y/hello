@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>福岡市地下鉄 空港線シミュレーター（姪浜〜福岡空港）</title>
+<style>
+  body {
+    background: linear-gradient(#0b2b50, #1c1c1c);
+    color: #fff;
+    font-family: "Arial", sans-serif;
+    text-align: center;
+  }
+  h1 { color: #00bfff; }
+  .panel {
+    background: #111;
+    border: 2px solid #00bfff;
+    border-radius: 10px;
+    padding: 15px;
+    display: inline-block;
+    margin-top: 15px;
+  }
+  button {
+    font-size: 1.2em;
+    margin: 5px;
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    background: #0077ff;
+    color: white;
+  }
+  button:hover { background: #00aaff; }
+  .display {
+    font-size: 1.4em;
+    margin: 10px;
+  }
+  .alert { color: #ff4444; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>🚆 福岡市地下鉄 空港線 運転シミュレーター</h1>
+<p>区間：姪浜 → 福岡空港（全13駅）</p>
+
+<div class="panel">
+  <div class="display">駅：<span id="station">姪浜</span></div>
+  <div class="display">速度：<span id="speed">0</span> km/h</div>
+  <div class="display">ブレーキ圧：<span id="brake">0</span> %</div>
+  <div id="alert" class="alert"></div>
+  <button onclick="accelerate()">力行</button>
+  <button onclick="brake()">常用ブレーキ</button>
+  <button onclick="emergency()">非常ブレーキ</button>
+  <button onclick="nextStation()">次の駅へ</button>
+  <button onclick="resetTrain()">リセット</button>
+</div>
+
+<script>
+let speed = 0;
+let brakePressure = 0;
+let ebActive = false;
+let currentStation = 0;
+
+// 福岡市地下鉄空港線の駅リスト
+const stations = [
+  "姪浜", "室見", "藤崎", "西新", "唐人町", "大濠公園",
+  "赤坂", "天神", "中洲川端", "祇園", "博多", "東比恵", "福岡空港"
+];
+
+function updateDisplay() {
+  document.getElementById("speed").textContent = speed.toFixed(1);
+  document.getElementById("brake").textContent = brakePressure;
+  document.getElementById("station").textContent = stations[currentStation];
+}
+
+function accelerate() {
+  if (ebActive) return;
+  if (speed < 75) {
+    speed += 4;
+    brakePressure = Math.max(0, brakePressure - 10);
+    updateDisplay();
+  }
+}
+
+function brake() {
+  if (speed > 0) {
+    speed -= 3;
+    if (speed < 0) speed = 0;
+    brakePressure = Math.min(100, brakePressure + 20);
+    updateDisplay();
+  }
+}
+
+function emergency() {
+  if (ebActive) return;
+  ebActive = true;
+  document.getElementById("alert").textContent = "⚠ 非常ブレーキ作動中！";
+  let ebTimer = setInterval(() => {
+    if (speed > 0) {
+      speed -= 10;
+      if (speed < 0) speed = 0;
+      brakePressure = 100;
+      updateDisplay();
+    } else {
+      clearInterval(ebTimer);
+      document.getElementById("alert").textContent = "列車停止（EB解除してください）";
+    }
+  }, 400);
+}
+
+function nextStation() {
+  if (speed > 0) {
+    document.getElementById("alert").textContent = "🚦 停止してから進めます";
+    return;
+  }
+  if (currentStation < stations.length - 1) {
+    currentStation++;
+    document.getElementById("alert").textContent = "➡ 発車！ 次は「" + stations[currentStation] + "」";
+  } else {
+    document.getElementById("alert").textContent = "✅ 終点：福岡空港 到着！";
+  }
+  updateDisplay();
+}
+
+function resetTrain() {
+  speed = 0;
+  brakePressure = 0;
+  ebActive = false;
+  currentStation = 0;
+  document.getElementById("alert").textContent = "";
+  updateDisplay();
+}
+
+updateDisplay();
+</script>
+
+</body>
+</html>
