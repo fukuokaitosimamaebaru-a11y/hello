@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電光掲示板風タイピング表示</title>
+    <style>
+        /* 1. 全体設定: 背景を黒にし、画面全体に広げる */
+        body {
+            background-color: #000000; /* 真っ黒な背景 */
+            color: #00ff00; /* 電光掲示板風の明るい緑色 */
+            display: flex;
+            justify-content: center; /* 水平中央揃え */
+            align-items: center; /* 垂直中央揃え */
+            min-height: 100vh; /* 画面全体の高さ */
+            margin: 0;
+            overflow: hidden; /* スクロールバーを非表示 */
+            font-family: 'DSEG7 Classic', 'Courier New', monospace; /* デジタル風フォントを優先 */
+        }
+
+        /* 2. テキスト表示エリアのスタイル */
+        .typing-text {
+            font-size: 4vw; /* 画面幅に応じた大きなフォントサイズ */
+            text-align: center;
+            /* 発光エフェクト（ネオン風） */
+            text-shadow: 0 0 7px #00ff00,
+                         0 0 10px #00ff00,
+                         0 0 21px #00ff00;
+            white-space: pre-wrap; /* 改行を保持するための設定 */
+        }
+        
+        /* 3. カーソルのスタイルと点滅 */
+        .typing-text-cursor::after {
+            content: '_'; /* カーソルをアンダーバーに変更してデジタル感を出す */
+            animation: blink 0.5s step-end infinite; /* 点滅速度を調整 */
+            margin-left: 0.5rem;
+            opacity: 1; /* 初期状態は表示 */
+        }
+
+        /* アニメーションの定義 */
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <p id="typing-output" class="typing-text typing-text-cursor"></p>
+
+    <script>
+        // 現在時刻を取得し、整形する関数
+        function getCurrentTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            
+            // 年月日と時分を整形して返す
+            return `${year}年${month}月${day}日 ${hour}時${minute}分`;
+        }
+
+        // ① 設定
+        const targetElement = document.getElementById('typing-output');
+        
+        // 現在時刻を埋め込んだテキストを作成（現在の日本時間）
+        // 🚨 修正: 宗吾くんのくだりを時刻が動的に入るよう再修正
+        const currentTime = getCurrentTime();
+        const textToType = `こんにちワン\nいまは、(${currentTime})だよ\n今日もぼくたいへんだったよー\n宗吾くんのせいで\nオホホホホホホホホホホホ好きだワン`;
+        
+        // 0.5秒 (500ミリ秒) 間隔
+        const delay = 500; 
+        let charIndex = 0; 
+        
+        // ② タイピング処理を行う関数
+        function typeWriter() {
+            if (charIndex < textToType.length) {
+                const char = textToType.charAt(charIndex);
+                
+                // 改行文字 '\n' の場合
+                if (char === '\n') {
+                    // HTMLの改行タグ <br> を要素のHTMLに追加
+                    targetElement.innerHTML += '<br>';
+                } else {
+                    // 通常の文字を要素のinnerHTMLに追加
+                    targetElement.innerHTML += char;
+                }
+                
+                charIndex++; 
+
+                // delayミリ秒後に自分自身を再度呼び出す
+                setTimeout(typeWriter, delay);
+            } else {
+                // 全ての文字が表示されたら、カーソルのクラスのみ残す（今回はクラスを外さず維持）
+                // カーソルを維持するため、ここでは特に処理はしません
+            }
+        }
+
+        // ③ 処理の開始
+        typeWriter();
+    </script>
+
+</body>
+</html>
