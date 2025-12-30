@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全画面デジタル時計</title>
+    <style>
+        /* CSSでスタイルを設定 */
+        body {
+            /* 全画面に広げ、背景色と文字色を設定 */
+            background-color: #000; /* 黒背景 */
+            color: #0f0; /* 明るい緑色の文字 */
+            display: flex; /* Flexboxを使って中央寄せ */
+            justify-content: center; /* 水平方向の中央 */
+            align-items: center; /* 垂直方向の中央 */
+            height: 100vh; /* ビューポートの高さ全体 */
+            margin: 0;
+            overflow: hidden; /* スクロールバー非表示 */
+            font-family: 'Arial', sans-serif; /* フォント指定 */
+        }
+
+        #clock {
+            /* 時計の文字を非常に大きくする */
+            font-size: 20vw; /* ビューポートの幅の20%のサイズ */
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8); /* 影で光るような効果 */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="clock">00:00:00</div>
+
+    <script>
+        // JavaScriptで現在時刻を更新する関数
+        function updateClock() {
+            const now = new Date();
+            // 時、分、秒を取得し、2桁表示（例: 08）にする
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            // 時刻を「時:分:秒」の形式で結合
+            const timeString = `${hours}:${minutes}:${seconds}`;
+
+            // HTML要素に時刻を表示
+            document.getElementById('clock').textContent = timeString;
+        }
+
+        // ページ読み込み時に一度実行
+        updateClock();
+
+        // 1秒ごとにupdateClock関数を実行して時刻を更新
+        setInterval(updateClock, 1000);
+    </script>
+
+</body>
+</html>

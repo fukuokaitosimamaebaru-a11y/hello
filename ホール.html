@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ホール風 仮想マイク</title>
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+    text-align: center;
+  }
+  h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+  }
+  button {
+    font-size: 1.5em;
+    padding: 15px 40px;
+    margin: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #0078D7;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  button:hover {
+    background: #005a9e;
+  }
+</style>
+</head>
+<body>
+  <h2>🎤 ホール風 仮想マイク</h2>
+  <button id="startBtn">マイク開始</button>
+  <button id="stopBtn">停止</button>
+
+  <script>
+    let audioContext, micStream, source, convolver;
+
+    function createReverbBuffer(context) {
+      const length = context.sampleRate * 3.0;
+      const impulse = context.createBuffer(2, length, context.sampleRate);
+      for (let i = 0; i < impulse.numberOfChannels; i++) {
+        let channelData = impulse.getChannelData(i);
+        for (let j = 0; j < length; j++) {
+          channelData[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / length, 2.5);
+        }
+      }
+      return impulse;
+    }
+
+    document.getElementById("startBtn").onclick = async () => {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      source = audioContext.createMediaStreamSource(micStream);
+      convolver = audioContext.createConvolver();
+      convolver.buffer = createReverbBuffer(audioContext);
+      const dryGain = audioContext.createGain();
+      dryGain.gain.value = 0.8;
+      const wetGain = audioContext.createGain();
+      wetGain.gain.value = 0.6;
+      source.connect(dryGain).connect(audioContext.destination);
+      source.connect(convolver).connect(wetGain).connect(audioContext.destination);
+    };
+
+    document.getElementById("stopBtn").onclick = () => {
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+      }
+      if (audioContext) {
+        audioContext.close();
+      }
+    };
+  </script>
+</body>
+</html>

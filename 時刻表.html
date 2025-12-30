@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自作時刻表 (福岡空港 10時台 警告付き)</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        .timetable-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        h2 {
+            color: #666;
+            text-align: center;
+            font-size: 1.1em;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        .time-hour {
+            background-color: #e6f7ff;
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .destination-meinhama {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .destination-hakozaki {
+            color: #e74c3c; /* 貝塚行きを赤色で強調 */
+            font-weight: bold;
+        }
+        /* 電車に注意の警告表示のスタイル */
+        .alert-box {
+            background-color: #fff3cd; /* 黄色っぽい背景 */
+            border: 2px solid #ffc107; /* 警告色の枠線 */
+            color: #856404;
+            padding: 15px;
+            margin-top: 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: left;
+        }
+        .alert-box strong {
+            color: #dc3545; /* 注意喚起の文字をさらに強調 */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timetable-container">
+        <h1>福岡空港駅 時刻表 (平日)</h1>
+        <h2>10時台</h2>
+        
+        <table id="timetable">
+            <thead>
+                <tr>
+                    <th>時</th>
+                    <th>分</th>
+                    <th>行先</th>
+                    <th>備考</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+
+        <div id="alert-message" class="alert-box" style="display:none;">
+            <strong>【電車にご注意！】</strong><br>
+            ・<span id="hakozaki-alert"></span>行きは、**貝塚方面（箱崎線）**へ向かいます。姪浜方面とは逆方向です。<br>
+            ・ご乗車の際は、行先表示をよくご確認ください。
+        </div>
+    </div>
+
+    <script>
+        // 運行データ定義: [時, 分, 行先, 種別, 方面（姪浜方面/貝塚方面）]
+        const scheduleData = [
+            // 提供された情報に近いデータを反映
+            [10, 0, "姪浜", "各停", "姪浜方面"], // 10時00分発 姪浜行き
+            [10, 5, "姪浜", "各停", "姪浜方面"],
+            [10, 16, "筑前前原", "各停", "姪浜方面"], // 10時16分発 筑前前原行き
+            [10, 21, "西唐津", "快速(JR線内)", "姪浜方面"],
+            [10, 27, "貝塚", "各停", "貝塚方面"], // 10時27分発 貝塚行き（箱崎線直通）
+            [10, 38, "姪浜", "各停", "姪浜方面"],
+            [10, 44, "筑前前原", "各停", "姪浜方面"],
+            [10, 52, "姪浜", "各停", "姪浜方面"]
+        ];
+
+        /**
+         * データを処理し、時刻表の<tbody>に挿入する関数
+         */
+        function renderTimetable() {
+            const tbody = document.getElementById('timetable').getElementsByTagName('tbody')[0];
+            let firstRow = true;
+            let hakozakiAlertExists = false; // 貝塚方面の列車があるか確認
+
+            scheduleData.forEach(item => {
+                const hour = item[0];
+                const minute = item[1];
+                const destination = item[2];
+                const type = item[3];
+                const direction = item[4];
+
+                const row = tbody.insertRow(); 
+
+                // 1. 「時」セル (10時台の最初の行のみ表示)
+                if (firstRow) {
+                    const hourCell = row.insertCell();
+                    hourCell.className = 'time-hour';
+                    hourCell.rowSpan = scheduleData.length;
+                    hourCell.textContent = hour;
+                    firstRow = false;
+                }
+                
+                // 2. 「分」セル
+                const minuteCell = row.insertCell();
+                minuteCell.textContent = minute.toString().padStart(2, '0');
+                
+                // 3. 「行先」セル
+                const destCell = row.insertCell();
+                destCell.textContent = destination;
+                
+                // 貝塚方面の場合は赤色で強調
+                if (direction === "貝塚方面") {
+                    destCell.className = 'destination-hakozaki';
+                    hakozakiAlertExists = true; // 警告フラグを立てる
+                } else {
+                    destCell.className = 'destination-meinhama';
+                }
+
+                // 4. 「備考」セル
+                const typeCell = row.insertCell();
+                typeCell.textContent = type;
+            });
+            
+            // 貝塚方面の列車がある場合に警告メッセージを表示
+            if (hakozakiAlertExists) {
+                const alertBox = document.getElementById('alert-message');
+                const hakozakiAlert = document.getElementById('hakozaki-alert');
+                
+                // 10:27の貝塚行きを警告文に埋め込む
+                hakozakiAlert.innerHTML = `**10時27分発 貝塚**`;
+                alertBox.style.display = 'block';
+            }
+        }
+
+        // ページが完全に読み込まれた後に時刻表を描画
+        window.onload = renderTimetable;
+    </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3分ボスバータイマー</title>
+    <style>
+        /* CSSセクション */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a; /* ダークな背景色 */
+            font-family: sans-serif;
+        }
+
+        /* ボスバー全体のコンテナ */
+        #boss-bar-container {
+            width: 90%;
+            max-width: 700px;
+            position: relative;
+            border: 5px solid #fff; /* 白い外枠 */
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            background-color: #000;
+            padding: 2px;
+        }
+
+        /* バーの背景部分 (減った時に見える部分) */
+        #boss-bar-background {
+            height: 35px; /* バーの高さ */
+            background-color: #555;
+            overflow: hidden;
+        }
+
+        /* 実際に減っていくバー本体 */
+        #boss-bar-fill {
+            height: 100%;
+            width: 100%; /* 初期値は100% */
+            /* マイクラの体力バーに近いグラデーション */
+            background: linear-gradient(to right, #e74c3c, #c0392b, #a0392b);
+            /* 滑らかに減るためのトランジション */
+            transition: width 1s linear; 
+        }
+
+        /* タイマーの残り時間を表示するテキスト */
+        #timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 8px black; /* テキストの視認性を上げる */
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="boss-bar-container">
+        <div id="boss-bar-background">
+            <div id="boss-bar-fill"></div>
+        </div>
+        <div id="timer-text">3:00</div>
+    </div>
+
+    <script>
+        // JavaScriptセクション
+
+        // 定数
+        const TOTAL_TIME_SECONDS = 3 * 60; // 3分 = 180秒
+        const INTERVAL_MS = 1000; // 1秒ごとに更新
+
+        // DOM要素の取得
+        const fillBar = document.getElementById('boss-bar-fill');
+        const timerText = document.getElementById('timer-text');
+
+        // 変数
+        let remainingTimeSeconds = TOTAL_TIME_SECONDS;
+
+        /**
+         * 時間を '分:秒' の形式にフォーマットする関数
+         */
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            // 秒が一桁の場合は '0' を付けて2桁にする
+            const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+            return `${minutes}:${formattedSeconds}`;
+        }
+
+        /**
+         * タイマーの更新処理
+         */
+        function updateTimer() {
+            if (remainingTimeSeconds <= 0) {
+                // タイマー終了
+                clearInterval(timerInterval); 
+                remainingTimeSeconds = 0;
+                fillBar.style.width = '0%';
+                timerText.textContent = 'タイムアップ！';
+                fillBar.style.background = '#2c3e50'; // 終了後のバーの色
+                return;
+            }
+
+            // 1. バーの幅（パーセンテージ）を計算
+            const percentage = (remainingTimeSeconds / TOTAL_TIME_SECONDS) * 100;
+            fillBar.style.width = `${percentage}%`;
+
+            // 2. テキスト表示を更新
+            timerText.textContent = formatTime(remainingTimeSeconds);
+
+            // 3. 残り時間を減らす
+            remainingTimeSeconds--;
+        }
+
+        // ページロード時に実行: 初期表示を設定し、インターバルを開始
+        window.onload = function() {
+            timerText.textContent = formatTime(TOTAL_TIME_SECONDS);
+            // 1秒ごとに updateTimer 関数を実行
+            window.timerInterval = setInterval(updateTimer, INTERVAL_MS);
+        }
+    </script>
+</body>
+</html>

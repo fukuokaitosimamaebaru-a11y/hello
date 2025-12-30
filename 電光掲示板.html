@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電光掲示板風 全画面表示</title>
+    <style>
+        /* 1. 全体設定: 背景を黒にし、画面全体に広げる */
+        body {
+            background-color: #000000; /* 真っ黒な背景 */
+            color: #00ff00; /* 電光掲示板風の明るい緑色 */
+            display: flex;
+            justify-content: center; /* 水平中央揃え */
+            align-items: center; /* 垂直中央揃え */
+            min-height: 100vh; /* 画面全体の高さ */
+            margin: 0;
+            overflow: hidden; /* スクロールバーを非表示 */
+            font-family: 'DSEG7 Classic', 'Courier New', monospace; /* デジタル風フォントを優先 */
+        }
+
+        /* 2. テキスト表示エリアのスタイル */
+        .typing-text {
+            font-size: 4vw; /* 画面幅に応じた大きなフォントサイズ */
+            text-align: center;
+            /* 発光エフェクト（ネオン風） */
+            text-shadow: 0 0 7px #00ff00,
+                         0 0 10px #00ff00,
+                         0 0 21px #00ff00;
+            white-space: pre-wrap; /* 改行を保持するための設定 */
+        }
+        
+        /* 3. カーソルのスタイル: タイピングが無いためカーソルは不要ですが、一応残します */
+        .typing-text-cursor::after {
+            content: '_';
+            animation: blink 0.5s step-end infinite;
+            margin-left: 0.5rem;
+            opacity: 1;
+        }
+
+        /* アニメーションの定義 */
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <p id="output-display" class="typing-text typing-text-cursor"></p>
+
+    <script>
+        // 現在時刻を取得し、整形する関数
+        function getCurrentTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            
+            // 年月日と時分を整形して返す
+            return `${year}年${month}月${day}日 ${hour}時${minute}分`;
+        }
+
+        // 処理
+        const targetElement = document.getElementById('output-display');
+        
+        // 現在時刻を埋め込んだテキストを作成
+        const currentTime = getCurrentTime();
+        const rawText = `こんにちワン\nいまは、(${currentTime})だよ\n今日もぼくたいへんだったよー\n宗吾くんのせいで\nオホホホホホホホホホホホ好きだワン`;
+        
+        // テキスト内の改行文字(\n)をHTMLの改行タグ(<br>)に一括置換
+        const finalHTML = rawText.replace(/\n/g, '<br>');
+
+        // 要素にHTMLを挿入し、即座に全表示する
+        targetElement.innerHTML = finalHTML;
+        
+        // 【タイピング処理は削除しました】
+    </script>
+
+</body>
+</html>

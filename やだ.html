@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>エレベーター 100階シミュレーション</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        #display-area {
+            background-color: #333;
+            color: #0f0;
+            font-size: 3em;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: inline-block;
+            min-width: 100px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        #button-panel {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr); /* 10列でレイアウト */
+            gap: 5px;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+        .floor-button {
+            padding: 10px 5px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #eee;
+            border: 1px solid #aaa;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        .floor-button:hover {
+            background-color: #ddd;
+        }
+        .floor-button:active {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>現在地</h1>
+    <div id="display-area">1F</div>
+
+    <h2>行き先ボタン (1-100F)</h2>
+    <div id="button-panel">
+        </div>
+
+    <script>
+        const maxFloor = 100; // 最大階数
+        const display = document.getElementById('display-area');
+        const panel = document.getElementById('button-panel');
+
+        // 1. ボタンの自動生成
+        for (let i = 1; i <= maxFloor; i++) {
+            const button = document.createElement('button');
+            button.className = 'floor-button';
+            button.textContent = i + 'F'; // ボタンのテキスト (例: 1F, 2F, ...)
+            button.setAttribute('data-floor', i); // 階数データを保持
+            
+            // 2. クリックイベントの追加
+            button.addEventListener('click', function() {
+                const floor = this.getAttribute('data-floor');
+                updateDisplay(floor);
+            });
+            
+            panel.appendChild(button);
+        }
+
+        // 3. 階数表示を更新する関数
+        function updateDisplay(floor) {
+            // ここでエレベーターが動くアニメーションなどを実装できますが、今回は単純な表示更新に留めます。
+            display.textContent = floor + 'F';
+            console.log(floor + '階へ移動します。');
+            
+            // 例: 1秒後に移動完了メッセージを表示
+            setTimeout(() => {
+                console.log(floor + '階に到着しました。');
+            }, 1000);
+        }
+    </script>
+
+</body>
+</html>
