@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仮想通貨 スライド決済ごっこ (カード)</title>
+    <style>
+        /* 全体の設定 */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff;
+            font-family: 'Meiryo', 'Arial', sans-serif;
+        }
+
+        /* 決済画面のコンテナ */
+        .payment-screen {
+            background-color: #ffffff;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        /* 金額と通貨の表示 */
+        .info-box {
+            background-color: #e6f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        #amount-display {
+            font-size: 2.2em;
+            color: #d90000;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        #balance-display {
+            font-size: 1.1em;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        /* スライドで使うコンテナ */
+        #slider-container {
+            width: 100%;
+            height: 50px;
+            background-color: #e0e0e0;
+            border-radius: 25px;
+            overflow: hidden; /* 中身がはみ出さないように */
+            position: relative;
+            margin: 20px 0;
+            user-select: none; /* テキスト選択を無効化 */
+        }
+
+        /* スライドさせる「使用する」ボタン */
+        #slider-handle {
+            width: 50px;
+            height: 50px;
+            background-color: #007bff;
+            border-radius: 50%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            cursor: grab; /* ドラッグできるカーソル */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5em;
+            transition: left 0.1s ease-out; /* 戻る時のアニメーション */
+            z-index: 10;
+        }
+
+        /* スライドエリアのテキスト */
+        #slider-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #555;
+            font-weight: bold;
+            letter-spacing: 1px;
+            z-index: 5;
+        }
+
+        /* カードアイコン（表示用） */
+        #card-icon {
+            font-size: 4em;
+            color: #444;
+            margin: 15px 0;
+        }
+
+        /* メッセージ表示エリア */
+        #message-area {
+            margin-top: 20px;
+            font-size: 1.2em;
+            height: 30px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="payment-screen">
+        <p style="font-size: 1.4em; color: #0056b3;">仮想通貨カード決済</p>
+
+        <div class="info-box">
+            <p style="margin: 0; font-size: 0.9em;">お支払い(JPY):</p>
+            <div id="amount-display">500円</div>
+            <div id="balance-display">残高: <span id="current-coin">100.0</span> MC (マジックコイン)</div>
+        </div>
+        
+        <div id="card-icon">
+            <span role="img" aria-label="Credit Card">💳</span>
+        </div>
+
+        <div id="slider-container">
+            <div id="slider-text">→ スライドして決済</div>
+            <div id="slider-handle">→</div>
+        </div>
+
+        <p id="message-area">スライドして決済を確定してください</p>
+    </div>
+
+    <script>
+        // JavaScriptでスライドと決済の動作を制御します
+        var currentCoin = 100.0; // 初期残高（マジックコイン）
+        var paymentYen = 500;    // 支払い金額（円）
+        var conversionRate = 10; // 1 MC = 10円 と仮定
+        var coinToDeduct = paymentYen / conversionRate; // 50.0 MC
+
+        var sliderContainer = document.getElementById('slider-container');
+        var sliderHandle = document.getElementById('slider-handle');
+        var messageArea = document.getElementById('message-area');
+        var balanceDisplay = document.getElementById('current-coin');
+        
+        var isDragging = false;
+        var startX = 0;
+        var containerWidth = sliderContainer.offsetWidth;
+        var handleWidth = sliderHandle.offsetWidth;
+        var maxSlide = containerWidth - handleWidth;
+        var isProcessing = false;
+        
+        // --- 決済実行関数 ---
+        function executePayment() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            // 処理開始のメッセージ
+            messageArea.textContent = '処理中... (仮想通貨を円に両替)';
+            messageArea.style.color = '#ff9900';
+
+            // スライドエリアを一時的にロック
+            sliderHandle.style.cursor = 'default';
+            sliderHandle.textContent = '...';
+
+            // 決済処理のシミュレーション
+            setTimeout(function() {
+                if (currentCoin >= coinToDeduct) {
+                    // 決済成功
+                    currentCoin = currentCoin - coinToDeduct;
+                    balanceDisplay.textContent = currentCoin.toFixed(1);
+                    
+                    messageArea.textContent = '✅ ' + paymentYen + '円 決済完了！';
+                    messageArea.style.color = 'green';
+                    sliderHandle.style.backgroundColor = 'green'; // ハンドルを緑に
+                    sliderHandle.textContent = 'OK';
+                    
+                } else {
+                    // 残高不足
+                    messageArea.textContent = '❌ 残高不足です！チャージしてください。';
+                    messageArea.style.color = 'red';
+                    sliderHandle.style.backgroundColor = 'red'; // ハンドルを赤に
+                    sliderHandle.textContent = 'NG';
+                }
+                
+                // 次の利用のためのリセット
+                setTimeout(function() {
+                    messageArea.textContent = 'スライドして決済を確定してください';
+                    messageArea.style.color = '#333';
+                    
+                    // ハンドルを元の位置に戻す
+                    sliderHandle.style.left = '0px';
+                    sliderHandle.style.backgroundColor = '#007bff';
+                    sliderHandle.style.cursor = 'grab';
+                    sliderHandle.textContent = '→';
+
+                    isProcessing = false;
+                }, 3000);
+                
+            }, 1500); // 1.5秒後に決済結果を表示
+        }
+        
+        // --- マウス操作のリスナー ---
+        
+        // ドラッグ開始
+        sliderHandle.addEventListener('mousedown', (e) => {
+            if (isProcessing) return;
+            isDragging = true;
+            startX = e.clientX;
+            sliderHandle.style.transition = 'none'; // ドラッグ中はアニメーションを無効化
+        });
+        
+        // ドラッグ中
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            let moveX = e.clientX - startX;
+            let newLeft = sliderHandle.offsetLeft + moveX;
+            
+            // 範囲制限
+            newLeft = Math.max(0, Math.min(newLeft, maxSlide));
+            
+            sliderHandle.style.left = newLeft + 'px';
+            startX = e.clientX;
+            
+            // 最大までスライドしたら決済を実行
+            if (newLeft >= maxSlide) {
+                isDragging = false;
+                executePayment();
+            }
+        });
+        
+        // ドラッグ終了 (最大までスライドしなかった場合)
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                sliderHandle.style.transition = 'left 0.3s ease-in-out'; // アニメーションを有効に戻す
+                sliderHandle.style.left = '0px'; // 元の位置に戻す
+            }
+        });
+        
+        // スマートフォン（タッチ）操作への対応
+        sliderHandle.addEventListener('touchstart', (e) => {
+             if (isProcessing) return;
+             isDragging = true;
+             startX = e.touches[0].clientX;
+             sliderHandle.style.transition = 'none';
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            let moveX = e.touches[0].clientX - startX;
+            let newLeft = sliderHandle.offsetLeft + moveX;
+            
+            newLeft = Math.max(0, Math.min(newLeft, maxSlide));
+            
+            sliderHandle.style.left = newLeft + 'px';
+            startX = e.touches[0].clientX;
+            
+            if (newLeft >= maxSlide) {
+                isDragging = false;
+                executePayment();
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+             if (isDragging) {
+                isDragging = false;
+                sliderHandle.style.transition = 'left 0.3s ease-in-out';
+                sliderHandle.style.left = '0px';
+            }
+        });
+
+    </script>
+
+</body>
+</html>
